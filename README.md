@@ -109,7 +109,48 @@ src/main/resources/
 
 ## Actividades propuestas
 1. Revisar el código de configuración de seguridad (`SecurityConfig`) e identificar cómo se definen los endpoints públicos y protegidos.
+
+Se revisó la clase SecurityConfig para entender qué rutas quedan abiertas y cuáles piden token. /auth/login y la documentación de Swagger son públicas, mientras que todo lo que empieza por /api/ exige un token válido con el scope correspondiente, cualquier otra ruta que no esté listada queda bloqueada por defecto. Esto se comprobó corriendo la aplicación y probando primero sin token, luego pidiendo el token en /auth/login, y por último usando ese token para consultar /api/blueprints.
+
+Este comportamiento tiene sentido con lo visto en clase sobre OAuth2 Resource Server, la API no maneja sesiones de usuario, solo valida el token que llega en cada petición, así que es coherente con la idea de que un servicio REST no debería depender de un estado guardado en el servidor.
+
+**Evidencia**
+
+```
+PS> curl.exe -i http://localhost:8080/api/blueprints
+HTTP/1.1 401
+WWW-Authenticate: Bearer
+Content-Length: 0
+```
+
+```
+PS> curl.exe -i -X POST http://localhost:8080/auth/login -H "Content-Type: application/json" -d '{ \"username\":\"student\",\"password\":\"student123\" }'
+HTTP/1.1 200
+Content-Type: application/json
+
+{"access_token":"eyJhbGciOiJSUzI1NiJ9...","token_type":"Bearer","expires_in":3600}
+```
+
+```
+PS> curl.exe -i http://localhost:8080/api/blueprints -H "Authorization: Bearer eyJhbGciOiJSUzI1NiJ9..."
+HTTP/1.1 200
+Content-Type: application/json
+
+[{"name":"Casa de campo","id":"b1"},{"name":"Edificio urbano","id":"b2"}]
+```
+
+
 2. Explorar el flujo de login y analizar las claims del JWT emitido.
+
+Se hizo login contra /auth/login con el usuario student y se tomó el access_token que devolvió la respuesta. Ese token se pegó en [jwt.io](https://jwt.io) para ver su contenido decodificado sin necesidad de escribir código adicional.
+
+![alt text](docs/img/AccessToken.png)
+
+En el token se puede ver el algoritmo de firma (RS256) en el header, y en el payload las claims que trae: quién lo emitió (iss), para qué usuario es (sub), cuándo se emitió y cuándo expira (iat/exp), y los permisos que tiene (scope). La resta entre exp e iat da 3600 segundos, que coincide con el expires_in que devolvió el login.
+
+![alt text](docs/img/actividad2-jwt-claims.png)
+
+
 3. Extender los scopes (`blueprints.read`, `blueprints.write`) para controlar otros endpoints de la API, del laboratorio P1 trabajado.
 4. Modificar el tiempo de expiración del token y observar el efecto.
 5. Documentar en Swagger los endpoints de autenticación y de negocio.
