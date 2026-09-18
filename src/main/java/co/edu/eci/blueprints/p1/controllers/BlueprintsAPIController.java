@@ -14,11 +14,13 @@ import co.edu.eci.blueprints.p1.persistence.BlueprintNotFoundException;
 import co.edu.eci.blueprints.p1.persistence.BlueprintPersistenceException;
 import co.edu.eci.blueprints.p1.services.BlueprintsServices;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api/v1/blueprints")
+@Tag(name = "Blueprints (P1)", description = "Endpoints para gestionar blueprints en la versión del lab pasado de la API")
 public class BlueprintsAPIController {
 
     private final BlueprintsServices services;

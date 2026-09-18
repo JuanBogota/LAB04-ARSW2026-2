@@ -2,6 +2,10 @@
 ## Arquitectura de Software – ARSW
 ### Laboratorio – Parte 2: BluePrints API con Seguridad JWT (OAuth 2.0)
 
+---
+# Solución Laboratorio 4 - ARSW 2026-2
+## Carlos Duban Rojas y Juan Daniel Bogotá Fuentes
+
 Este laboratorio extiende la **Parte 1** ([Lab_P1_BluePrints_Java21_API](https://github.com/DECSIS-ECI/Lab_P1_BluePrints_Java21_API)) agregando **seguridad a la API** usando **Spring Boot 3, Java 21 y JWT (OAuth 2.0)**.  
 El API se convierte en un **Resource Server** protegido por tokens Bearer firmados con **RS256**.  
 Incluye un endpoint didáctico `/auth/login` que emite el token para facilitar las pruebas.
@@ -152,8 +156,40 @@ En el token se puede ver el algoritmo de firma (RS256) en el header, y en el pay
 
 
 3. Extender los scopes (`blueprints.read`, `blueprints.write`) para controlar otros endpoints de la API, del laboratorio P1 trabajado.
+
+Se trajeron al proyecto los endpoints reales del laboratorio pasado (/api/v1/blueprints: listar todos, listar por autor, obtener uno, crear, y agregar un punto) y se les agregó @PreAuthorize para exigir el scope correspondiente: blueprints.read en las consultas (GET) y blueprints.write en las operaciones que modifican datos (POST y PUT).
+
+Con el token de student se probaron los 4 endpoints y todos respondieron con el código esperado.
+
+![alt text](docs/img/cap1.png)
+
+![alt text](docs/img/cap2.png)
+
+![alt text](docs/img/cap3.png)
+
+![alt text](docs/img/cap4.png)
+
 4. Modificar el tiempo de expiración del token y observar el efecto.
+
+Se cambió el valor token-ttl-seconds en application.yml de 3600 a 30 segundos, y se reinició la aplicación para que tomara el nuevo valor. Se probó el token contra /api/v1/blueprints después de esperar más de 30 segundos, obteniendo un error por token expirado; luego se pidió un token nuevo y se repitió la petición, obteniendo respuesta exitosa.
+
+![alt text](docs/img/cambio30s.png)
+
+![alt text](docs/img/pruebaDelCambio.png)
+
+![alt text](docs/img/pruebaDelCambio3.png)
+
+![alt text](docs/img/pruebaDelCambio2.png)
+
 5. Documentar en Swagger los endpoints de autenticación y de negocio.
+
+Se agregaron anotaciones @Tag y @Operation a los controladores para que Swagger agrupe los endpoints por categoría y muestre una descripción de cada uno, Autenticación (/auth/login), Blueprints (los endpoints de ejemplo del propio LAB04) y Blueprints (P1) (los endpoints traídos del laboratorio anterior). También se probó el botón Authorize pegando el token, y se ejecutó un GET /api/v1/blueprints directamente desde Swagger con Try it out, confirmando que responde 200 con los datos reales.
+
+![alt text](docs/img/Swagger.png)
+
+![alt text](docs/img/authorize.png)
+
+![alt text](docs/img/endpoint.png)
 
 ---
 
